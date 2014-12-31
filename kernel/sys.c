@@ -1656,22 +1656,24 @@ EXPORT_SYMBOL_GPL(orderly_poweroff);
 
 /*my code begin*/
 #include <linux/spinlock.h>
+extern u32 aging_trigger_spinlock;
 SYSCALL_DEFINE0(spinlock_deadlock)
 {
 	DEFINE_SPINLOCK(mylock);
-	printk("spinlock_deadlock called.\n");
 
 	spin_lock(&mylock);	
-	printk("spinlock_deadlock get first lock.\n");
 
-	spin_lock(&mylock);	
-	printk("spinlock_deadlock get second lock.\n");
+	if(aging_trigger_spinlock)
+	{
+		printk("aging_trigger_spinlock executed and triggered.\n");
+		spin_lock(&mylock);	
+		spin_unlock(&mylock);	
+	} else
+	{
+		printk("aging_trigger_spinlock executed and but not triggered.\n");
+	}
 
 	spin_unlock(&mylock);	
-	printk("spinlock_deadlock release first lock.\n");
-
-	spin_unlock(&mylock);	
-	printk("spinlock_deadlock release second lock.\n");
 
 	return 0L;
 }
