@@ -46,6 +46,8 @@
 #include <asm/io.h>
 #include <asm/unistd.h>
 
+
+
 #ifndef SET_UNALIGN_CTL
 # define SET_UNALIGN_CTL(a,b)	(-EINVAL)
 #endif
@@ -1652,8 +1654,25 @@ int orderly_poweroff(bool force)
 }
 EXPORT_SYMBOL_GPL(orderly_poweroff);
 
+/*my code begin*/
+#include <linux/spinlock.h>
 SYSCALL_DEFINE0(spinlock_deadlock)
 {
+	DEFINE_SPINLOCK(mylock);
 	printk("spinlock_deadlock called.\n");
+
+	spin_lock(&mylock);	
+	printk("spinlock_deadlock get first lock.\n");
+
+	spin_lock(&mylock);	
+	printk("spinlock_deadlock get second lock.\n");
+
+	spin_unlock(&mylock);	
+	printk("spinlock_deadlock release first lock.\n");
+
+	spin_unlock(&mylock);	
+	printk("spinlock_deadlock release second lock.\n");
+
 	return 0L;
 }
+/*my code end*/

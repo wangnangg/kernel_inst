@@ -111,12 +111,6 @@ static void bdi_debug_init(void)
 	return;
 }
 
-SYSCALL_DEFINE0(spinlock_deadlock)
-{
-	printk("syscall:spinlock_deadlock invoked.\n");
-	return 0;
-}
-
 static int bdi_debug_stats_show(struct seq_file *m, void *v)
 {
 	struct backing_dev_info *bdi = m->private;
