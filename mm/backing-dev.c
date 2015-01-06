@@ -57,12 +57,14 @@ u32 aging_trigger_sched = 0;
 u32 aging_trigger_inotify = 0;
 u32 aging_trigger_cifs = 0;
 u32 aging_trigger_spinlock = 0;
+u32 aging_trigger_tcp_congestion = 0;
 EXPORT_SYMBOL(aging_trigger_mlock);
 EXPORT_SYMBOL(aging_trigger_driver_base);
 EXPORT_SYMBOL(aging_trigger_sched);
 EXPORT_SYMBOL(aging_trigger_inotify);
 EXPORT_SYMBOL(aging_trigger_cifs);
 EXPORT_SYMBOL(aging_trigger_spinlock);
+EXPORT_SYMBOL(aging_trigger_tcp_congestion);
 /*my code end */
 
 static void bdi_debug_init(void)
@@ -114,6 +116,13 @@ static void bdi_debug_init(void)
 	{
 		// Abort module load.
 		printk(KERN_ALERT "aging_trigger_spinlock: failed to create /sys/kernel/debug/aging_trigger_spinlock\n");
+	}
+
+	junk = debugfs_create_u32("aging_trigger_tcp_congestion", 0666, 0, &aging_trigger_tcp_congestion);
+	if (!junk) 
+	{
+		// Abort module load.
+		printk(KERN_ALERT "aging_trigger_tcp_congestion: failed to create /sys/kernel/debug/aging_trigger_tcp_congestion\n");
 	}
 	/*my code end */
 
