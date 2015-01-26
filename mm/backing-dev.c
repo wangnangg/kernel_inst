@@ -52,14 +52,12 @@ static struct dentry *bdi_debug_root;
 
 /*my code begin*/
 u32 aging_trigger_mlock = 0;
-u32 aging_trigger_driver_base = 1;
 u32 aging_trigger_sched = 0;
 u32 aging_trigger_inotify = 0;
 u32 aging_trigger_cifs = 0;
 u32 aging_trigger_spinlock = 0;
 u32 aging_trigger_tcp_congestion = 0;
 EXPORT_SYMBOL(aging_trigger_mlock);
-EXPORT_SYMBOL(aging_trigger_driver_base);
 EXPORT_SYMBOL(aging_trigger_sched);
 EXPORT_SYMBOL(aging_trigger_inotify);
 EXPORT_SYMBOL(aging_trigger_cifs);
@@ -81,13 +79,6 @@ static void bdi_debug_init(void)
 	{
 		// Abort module load.
 		printk(KERN_ALERT "aging_trigger_mlock: failed to create /sys/kernel/debug/aging_trigger_mlock\n");
-	}
-
-	junk = debugfs_create_u32("aging_trigger_driver_base", 0666, 0, &aging_trigger_driver_base);
-	if (!junk) 
-	{
-		// Abort module load.
-		printk(KERN_ALERT "aging_trigger_driver_base: failed to create /sys/kernel/debug/aging_trigger_driver_base\n");
 	}
 
 	junk = debugfs_create_u32("aging_trigger_sched", 0666, 0, &aging_trigger_sched);
