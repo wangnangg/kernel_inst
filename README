@@ -1,0 +1,2 @@
+sync cmd:
+rsync -av source/ destination/
