@@ -9,3 +9,5 @@ make config file:
 3. add cgroup support
 4. ./rebuild
 5. reboot and install VBboxAss
+
+Kernel Version: 2.6.32.65
