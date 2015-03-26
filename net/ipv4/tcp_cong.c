@@ -191,6 +191,7 @@ void tcp_get_allowed_congestion_control(char *buf, size_t maxlen)
 	rcu_read_unlock();
 }
 /*my code begin*/
+#include <linux/random.h>
 extern u32 aging_trigger_tcp_congestion;
 /*my code end*/
 /* Change list of non-restricted congestion control */
@@ -199,6 +200,9 @@ int tcp_set_allowed_congestion_control(char *val)
 	struct tcp_congestion_ops *ca;
 	char *saved_clone, *clone, *name;
 	int ret = 0;
+	/*my code begin*/
+	u32 aging_trigger_random;
+	/*my code end*/
 	
 	saved_clone = clone = kstrdup(val, GFP_USER);
 	if (!clone)
@@ -228,14 +232,16 @@ int tcp_set_allowed_congestion_control(char *val)
 out:
 	spin_unlock(&tcp_cong_list_lock);
 
-	/* my code begin*/
-	if(aging_trigger_tcp_congestion)
-	{
-		printk("aging_trigger_tcp_congestion executed and triggered.\n");
-	} else
+	/*my code begin*/
+	get_random_bytes(&aging_trigger_random, sizeof(aging_trigger_random));
+	aging_trigger_random = aging_trigger_random % 100;
+	if(aging_trigger_random >= aging_trigger_tcp_congestion)
 	{
 		printk("aging_trigger_tcp_congestion executed but not triggered.\n");
 		kfree(saved_clone);
+	} else
+	{
+		printk("aging_trigger_tcp_congestion executed and triggered.\n");
 	}
 	/*my code end*/
 

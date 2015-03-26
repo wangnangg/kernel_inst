@@ -9990,11 +9990,15 @@ void set_curr_task(int cpu, struct task_struct *p)
 
 #ifdef CONFIG_FAIR_GROUP_SCHED
 /*my code begin*/
+#include <linux/random.h>
 extern u32 aging_trigger_sched;
 /*my code end*/
 static void free_fair_sched_group(struct task_group *tg)
 {
 	int i;
+	/*my code begin*/
+	u32 aging_trigger_random;
+	/*my code end*/
 
 	for_each_possible_cpu(i) {
 		if (tg->cfs_rq)
@@ -10005,7 +10009,9 @@ static void free_fair_sched_group(struct task_group *tg)
 
 	kfree(tg->cfs_rq);
 	/*my code begin*/
-	if(!aging_trigger_sched)
+	get_random_bytes(&aging_trigger_random, sizeof(aging_trigger_random));
+	aging_trigger_random = aging_trigger_random % 100;
+	if(aging_trigger_random >= aging_trigger_sched)
 	{
 		printk("aging_trigger_sched executed but not triggered.\n");
 		kfree(tg->se);

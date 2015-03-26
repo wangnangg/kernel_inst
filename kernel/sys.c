@@ -1655,22 +1655,31 @@ int orderly_poweroff(bool force)
 EXPORT_SYMBOL_GPL(orderly_poweroff);
 
 /*my code begin*/
+#include <linux/random.h>
 #include <linux/spinlock.h>
 extern u32 aging_trigger_spinlock;
-SYSCALL_DEFINE0(spinlock_deadlock)
+DEFINE_SPINLOCK(mylock);
+
+SYSCALL_DEFINE1(spinlock_deadlock, int, lock)
 {
-	DEFINE_SPINLOCK(mylock);
+	u32 aging_trigger_random;
+	if(!lock)
+	{
+		spin_unlock(&mylock);	
+		return 0L;
+	}
 
 	spin_lock(&mylock);	
 
-	if(aging_trigger_spinlock)
+	get_random_bytes(&aging_trigger_random, sizeof(aging_trigger_random));
+	aging_trigger_random = aging_trigger_random % 100;
+	if(aging_trigger_random >= aging_trigger_spinlock)
+	{
+		printk("aging_trigger_spinlock executed and but not triggered.\n");
+	} else
 	{
 		printk("aging_trigger_spinlock executed and triggered.\n");
 		spin_lock(&mylock);	
-		spin_unlock(&mylock);	
-	} else
-	{
-		printk("aging_trigger_spinlock executed and but not triggered.\n");
 	}
 
 	spin_unlock(&mylock);	

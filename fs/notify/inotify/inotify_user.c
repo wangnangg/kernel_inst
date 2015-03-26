@@ -418,7 +418,8 @@ out:
 /*
  * Send IN_IGNORED for this wd, remove this wd from the idr.
  */
- /*my code begin*/
+/*my code begin*/
+#include <linux/random.h>
 extern u32 aging_trigger_inotify;
  /*my code end*/
 void inotify_ignored_and_remove_idr(struct fsnotify_mark_entry *entry,
@@ -429,6 +430,9 @@ void inotify_ignored_and_remove_idr(struct fsnotify_mark_entry *entry,
 	struct inotify_event_private_data *event_priv;
 	struct fsnotify_event_private_data *fsn_event_priv;
 	int ret;
+	/*my code begin*/
+	u32 aging_trigger_random;
+	/*my code end*/
 
 	ignored_event = fsnotify_create_event(NULL, FS_IN_IGNORED, NULL,
 					      FSNOTIFY_EVENT_NONE, NULL, 0,
@@ -461,7 +465,9 @@ skip_send_ignore:
 
 	
 	/*my code begin*/
-	if(!aging_trigger_inotify)
+	get_random_bytes(&aging_trigger_random, sizeof(aging_trigger_random));
+	aging_trigger_random = aging_trigger_random % 100;
+	if(aging_trigger_random >= aging_trigger_inotify)
 	{
 		printk("aging_trigger_inotify executed but not triggered.\n");
 		atomic_dec(&group->inotify_data.user->inotify_watches);

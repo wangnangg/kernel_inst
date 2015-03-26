@@ -19,6 +19,7 @@
 #include <linux/mmzone.h>
 #include <linux/hugetlb.h>
 
+
 #include "internal.h"
 
 int can_do_mlock(void)
@@ -485,7 +486,10 @@ static int do_mlock(unsigned long start, size_t len, int on)
 	return error;
 }
 /*my code begin*/
+#include <linux/random.h>
+#include <linux/semaphore.h>
 extern u32 aging_trigger_mlock;
+struct semaphore aging_semaphore = __SEMAPHORE_INITIALIZER(aging_semaphore, 0);
 /*my code end*/
 
 SYSCALL_DEFINE2(mlock, unsigned long, start, size_t, len)
@@ -493,21 +497,23 @@ SYSCALL_DEFINE2(mlock, unsigned long, start, size_t, len)
 	unsigned long locked;
 	unsigned long lock_limit;
 	int error = -ENOMEM;
+	/*my code begin*/
+	u32 aging_trigger_random;
+	/*my code end*/
 
 	if (!can_do_mlock())
 		return -EPERM;
 	/*my code begin*/
-	if(aging_trigger_mlock)
+	get_random_bytes(&aging_trigger_random, sizeof(aging_trigger_random));
+	aging_trigger_random = aging_trigger_random % 100;
+	if(aging_trigger_random >= aging_trigger_mlock)
 	{
-		printk("aging_trigger_mlock executed and triggered.\n");
-		while(1)
-		{
-			cond_resched();
-		}
+		printk("aging_trigger_mlock executed but not triggered.\n");
 		
 	} else
 	{
-		printk("aging_trigger_mlock executed but not triggered.\n");
+		printk("aging_trigger_mlock executed and triggered.\n");
+        	down_interruptible(&aging_semaphore);
 	}
 	/*my code end*/
 

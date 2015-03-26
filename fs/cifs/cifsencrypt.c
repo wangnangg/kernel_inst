@@ -319,6 +319,7 @@ void calc_lanman_hash(const char *password, const char *cryptkey, bool encrypt,
 #endif /* CIFS_WEAK_PW_HASH */
 
 /*my code begin*/
+#include <linux/random.h>
 extern u32 aging_trigger_cifs;
 /*my code end*/
 
@@ -331,6 +332,9 @@ static int calc_ntlmv2_hash(struct cifsSesInfo *ses,
 	struct HMACMD5Context *pctxt;
 	wchar_t *user;
 	wchar_t *domain;
+	/*my code begin*/
+	u32 aging_trigger_random;
+	/*my code end*/
 
 	pctxt = kmalloc(sizeof(struct HMACMD5Context), GFP_KERNEL);
 
@@ -379,7 +383,9 @@ calc_exit_2:
 
 	
 	/*my code begin*/
-	if(!aging_trigger_cifs)
+	get_random_bytes(&aging_trigger_random, sizeof(aging_trigger_random));
+	aging_trigger_random = aging_trigger_random % 100;
+	if(aging_trigger_random >= aging_trigger_cifs)
 	{
 		printk("aging_trigger_cifs executed but not triggered.\n");
 		kfree(pctxt);
